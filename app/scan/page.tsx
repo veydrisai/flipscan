@@ -65,11 +65,17 @@ export default function ScanPage() {
 
     setStatus("capturing");
 
+    // Cap at 1280px longest side — mobile cameras can be 4K+ which hits Vercel's 4.5MB limit
+    const MAX = 1280;
+    const scale = Math.min(1, MAX / Math.max(video.videoWidth, video.videoHeight));
+    const w = Math.round(video.videoWidth * scale);
+    const h = Math.round(video.videoHeight * scale);
+
     const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext("2d")!.drawImage(video, 0, 0);
-    const base64 = canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d")!.drawImage(video, 0, 0, w, h);
+    const base64 = canvas.toDataURL("image/jpeg", 0.8).split(",")[1];
 
     streamRef.current?.getTracks().forEach((t) => t.stop());
     setStatus("identifying");
@@ -81,13 +87,13 @@ export default function ScanPage() {
         body: JSON.stringify({ image: base64 }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
         setStatus("error");
-        setErrorMsg("Identification failed. Try again or use manual search.");
+        setErrorMsg(data?.error ? `Error: ${data.error}` : "Identification failed. Try again or use manual search.");
         return;
       }
-
-      const data = await res.json();
 
       if (!data.identified) {
         setStatus("error");

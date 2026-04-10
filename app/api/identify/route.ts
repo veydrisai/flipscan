@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No image or text provided" }, { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     let result;
 
     if (text) {
@@ -77,9 +77,10 @@ export async function POST(req: NextRequest) {
     const parsed = extractJson(result.response.text());
     return NextResponse.json(parsed);
   } catch (err) {
-    console.error("[identify]", err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[identify]", message);
     return NextResponse.json(
-      { identified: false, error: "Identification failed" },
+      { identified: false, error: message },
       { status: 500 }
     );
   }
