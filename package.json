@@ -8,7 +8,7 @@
     "start": "next start --port 3002"
   },
   "dependencies": {
-    "next": "15.2.4",
+    "next": "15.2.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@google/generative-ai": "^0.24.0"
